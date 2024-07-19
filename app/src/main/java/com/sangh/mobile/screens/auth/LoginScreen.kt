@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -30,12 +31,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.sangh.mobile.R
 import com.sangh.mobile.components.Input
+import com.sangh.mobile.components.PrimaryButton
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,25 +87,17 @@ fun LoginScreen(navController: NavHostController? = null) {
                     phoneNumber = it
                 }, prefix = {
                     Text("+91 ", color = Color.Gray)
-                }, placeholder = "Phone Number")
+                }, placeholder = "Phone Number", keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone))
 
                 Box(modifier = Modifier.height(20.dp))
 
-                Button(
+                PrimaryButton(
                     onClick = {
                         navController?.navigate("tabScreen"){
                             popUpTo("login") { inclusive = true }
                             launchSingleTop = true
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(10, 132, 255)
-                    )
-
                 ) {
                     Text(
                         text = "Get OTP",

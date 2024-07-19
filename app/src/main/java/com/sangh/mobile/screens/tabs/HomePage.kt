@@ -23,13 +23,24 @@ import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.AttachMoney
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,9 +54,17 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.sangh.mobile.components.ListTile
 import com.sangh.mobile.components.PlaceholderBox
+import com.sangh.mobile.components.PrimaryButton
+import com.sangh.mobile.models.AppViewModel
+import com.sangh.mobile.models.ViewMode
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomePage() {
+fun HomePage(appViewModel: AppViewModel) {
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
@@ -70,7 +89,11 @@ fun HomePage() {
             subtitle = "SiD",
             subtitleFontSize = 26.sp,
             trailing = {
-                Icon(Icons.Rounded.Settings, contentDescription = null)
+                IconButton(onClick = {
+                    showBottomSheet = true
+                }) {
+                    Icon(Icons.Rounded.Settings, contentDescription = null)
+                }
             }
         )
 
@@ -140,6 +163,29 @@ fun HomePage() {
                 text = "Donations"
             )
         }
+
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                sheetState = sheetState
+            ) {
+                // Sheet content
+                ViewModeBottomSheet(
+                    onViewModeSelected = { newViewMode ->
+                        appViewModel.setViewMode(newViewMode)
+                    },
+                    onClose = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                            }
+                        }
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -194,8 +240,51 @@ fun RelatedCard(modifier: Modifier = Modifier, icon: ImageVector, text: String) 
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun HomePagePreview() {
-    HomePage()
+fun ViewModeBottomSheet(
+    onViewModeSelected: (ViewMode) -> Unit,
+    onClose: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Select View Mode", style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(20.dp))
+        PrimaryButton(
+            onClick = {
+                onViewModeSelected(ViewMode.Regular)
+                onClose()
+            }
+        ) {
+            Text("Regular")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        PrimaryButton(
+            onClick = {
+                onViewModeSelected(ViewMode.SiteAdmin)
+                onClose()
+            }
+        ) {
+            Text("Site Admin")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        PrimaryButton(
+            onClick = {
+                onViewModeSelected(ViewMode.Admin)
+                onClose()
+            }
+        ) {
+            Text("Admin")
+        }
+    }
 }
+
+
+//@Preview(showBackground = true)
+//@Composable
+//fun HomePagePreview() {
+//    HomePage()
+//}

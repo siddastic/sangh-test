@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Money
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.BroadcastOnHome
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -21,13 +23,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.sangh.mobile.models.AppViewModel
+import com.sangh.mobile.models.ViewMode
 
 @Composable
-fun TabScreen() {
+fun TabScreen(appViewModel: AppViewModel) {
+    val viewMode by appViewModel.viewMode
+
     var selectedIndex by remember { mutableIntStateOf(0) }
 
-    val items = listOf("Home", "Events", "Discover", "Calendar", "Donations")
+    val items = when (viewMode) {
+        ViewMode.Regular -> listOf("Home", "Events", "Discover", "Calendar", "Donations")
+        else -> listOf("Home", "Events", "Broadcast", "Calendar", "Members")
+    }
 
     Scaffold(
         bottomBar = {
@@ -41,12 +49,13 @@ fun TabScreen() {
                                 "Discover" -> Icon(Icons.Filled.Search, contentDescription = null)
                                 "Calendar" -> Icon(Icons.Default.CalendarMonth, contentDescription = null)
                                 "Donations" -> Icon(Icons.Filled.Money, contentDescription = null)
+                                "Broadcast" -> Icon(Icons.Rounded.BroadcastOnHome, contentDescription = null)
+                                "Members" -> Icon(Icons.Default.Group, contentDescription = null)
                             }
                         },
                         label = { Text(item) },
                         selected = selectedIndex == index,
-                        onClick = { selectedIndex = index },
-                        alwaysShowLabel = true
+                        onClick = { selectedIndex = index }
                     )
                 }
             }
@@ -54,18 +63,24 @@ fun TabScreen() {
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding).fillMaxSize(), contentAlignment = Alignment.Center) {
             when (selectedIndex) {
-                0 -> HomePage()
-                1 -> EventsPage()
-                2 -> DiscoverPage()
+                0 -> HomePage(appViewModel)
+                1 -> EventsPage(appViewModel)
+                2 -> when (viewMode) {
+                    ViewMode.Regular -> DiscoverPage()
+                    else -> BroadcastPage()
+                }
                 3 -> CalendarPage()
-                4 -> DonationsPage()
+                4 -> when (viewMode) {
+                    ViewMode.Regular -> DonationsPage()
+                    else -> MembersPage()
+                }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun BottomNavScreenPreview() {
-        TabScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun BottomNavScreenPreview() {
+//        TabScreen()
+//}

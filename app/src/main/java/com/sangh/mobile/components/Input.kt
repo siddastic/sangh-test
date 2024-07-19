@@ -20,7 +20,8 @@ fun Input(
     modifier: Modifier = Modifier,
     placeholder: String = "Input Placeholder",
     prefix: @Composable (() -> Unit)? = {},
-    suffix: @Composable (() -> Unit)? = {}
+    suffix: @Composable (() -> Unit)? = {},
+    keyboardOptions : KeyboardOptions = KeyboardOptions.Default,
 ) {
     OutlinedTextField(
         value = value,
@@ -39,6 +40,6 @@ fun Input(
         ),
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+        keyboardOptions = keyboardOptions
     )
 }
